@@ -1,0 +1,67 @@
+# specify version
+version: '3'
+# encounter services
+services:
+  postgres:
+    # in docker hub see good version "expore" latest
+    image:  "postgres:latest"
+    # recent updates for pass in postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres_password
+  redis:
+    image: "redis:latest"
+   # specification for build and volumes
+  nginx:
+    depends_on:
+      - api
+      - client
+    # restart policy
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - '3050:80'
+  api:
+    build:
+      # just name, no /server/Dockerfile, context says where to look
+      dockerfile: Dockerfile.dev
+      context: ./server
+    volumes:
+      # dont overwrite this folder we say
+      -  /app/node_modules
+      # каждый раз при попытке достать app, все кроме node_modules будет
+      # перенаправлено на server, все что будет меняться на server
+      # автоматически обновит все в app внутри контейнера
+      - ./server:/app
+    environment:
+      - REDIS_HOST=redis
+      # default port for redis and variabels for postgres
+      - REDIS_PORT=6379
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres_password
+      - PGPORT=5432
+  client:
+    stdin_open: true
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      -  /app/node_modules
+      - ./client:/app
+  worker:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+
+
+
