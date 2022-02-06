@@ -7,26 +7,26 @@ services:
 
 before install:
   # docker with context address React app
-  - docker build -t Pavel0793/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t pavel0793/react-test -f ./client/Dockerfile.dev ./client
 # test running section
 # if any of scripts finishes with output not 0 - fail
 script:
-  - docker run -e CI=true Pavel0793/react-test npm test
+  - docker run -e CI=true pavel0793/react-test npm test
 
 # first make docker builds for all our services
 # after push docker hub
 after_success:
-  - docker build -t Pavel0793/multi-client ./client
-  - docker build -t Pavel0793/multi-nginx ./nginx
-  - docker build -t Pavel0793/multi-server ./server
-  - docker build -t Pavel0793/multi-worker ./worker
+  - docker build -t pavel0793/multi-client ./client
+  - docker build -t pavel0793/multi-nginx ./nginx
+  - docker build -t pavel0793/multi-server ./server
+  - docker build -t pavel0793/multi-worker ./worker
 
   # log in to the docker CLI
   # echo берет пароль и подает его в команду после |
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # take images and push to docker hub
-  - docker push Pavel0793/multi-client
-  - docker push Pavel0793/multi-nginx
-  - docker push Pavel0793/multi-server
-  - docker push Pavel0793/multi-worker
+  - docker push pavel0793/multi-client
+  - docker push pavel0793/multi-nginx
+  - docker push pavel0793/multi-server
+  - docker push pavel0793/multi-worker
 
